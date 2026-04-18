@@ -7,15 +7,16 @@ interface Video {
 }
 
 function Library() {
-    const [allVideos, setAllVideos] = useState<Video[]>([]);
-    const [currentPath, setCurrentPath] = useState<string>("");
+    const [videos, setVideos] = useState<Video[]>([]);
     const [loading, setLoading] = useState(true);
+    const [currentPath, setCurrentPath] = useState<string>("");
+    const [searchQuery, setSearchQuery] = useState<string>("");
 
     useEffect(() => {
         fetch("/api/videos")
             .then((res) => res.json())
             .then((data) => {
-                setAllVideos(data);
+                setVideos(data);
                 setLoading(false);
             })
             .catch((err) => {
@@ -26,75 +27,77 @@ function Library() {
 
     if (loading) return <div>Scanning video folder...</div>;
 
-    const prefix = currentPath ? currentPath + "/" : "";
-    const folders = new Set<string>();
-    const files: Video[] = [];
+    const isSearching = searchQuery.trim().length > 0;
+    let folderList: string[] = [];
+    let files: Video[] = [];
 
-    for (const video of allVideos) {
-        if (video.name.startsWith(prefix)) {
-            const remaining = video.name.slice(prefix.length);
-            const slashIndex = remaining.indexOf("/");
+    if (isSearching) {
+        const query = searchQuery.toLowerCase();
+        files = videos.filter(v => v.name.toLowerCase().includes(query));
+    } else {
+        const prefix = currentPath ? currentPath + "/" : "";
+        const folders = new Set<string>();
 
-            if (slashIndex === -1) {
-                files.push({ ...video, name: remaining });
-            } else {
-                folders.add(remaining.slice(0, slashIndex));
+        for (const video of videos) {
+            if (currentPath === "" || video.name.startsWith(prefix)) {
+                const remaining = video.name.slice(prefix.length);
+                const slashIndex = remaining.indexOf("/");
+
+                if (slashIndex === -1) {
+                    files.push({ ...video, name: remaining });
+                } else {
+                    folders.add(remaining.slice(0, slashIndex));
+                }
             }
         }
+
+        folderList = Array.from(folders).sort();
+        files.sort((a, b) => a.name.localeCompare(b.name));
     }
 
-    const folderList = Array.from(folders).sort();
-    files.sort((a, b) => a.name.localeCompare(b.name));
-    const pathParts = currentPath ? currentPath.split("/") : [];
+    const navigateUp = () => {
+        const parts = currentPath.split("/");
+        parts.pop();
+        setCurrentPath(parts.join("/"));
+    };
+
+    const navigateIn = (folder: string) => {
+        setCurrentPath(currentPath ? `${currentPath}/${folder}` : folder);
+    };
 
     return (
         <div>
-            <div className="header">
-                <h1>Video Library</h1>
-                <div className="breadcrumbs">
-                    <button onClick={() => setCurrentPath("")}>Home</button>
-                    {pathParts.map((part, index) => {
-                        const path = pathParts.slice(0, index + 1).join("/");
-                        return (
-                            <React.Fragment key={path}>
-                                <span className="separator">/</span>
-                                <button onClick={() => setCurrentPath(path)}>{part}</button>
-                            </React.Fragment>
-                        );
-                    })}
-                </div>
-            </div>
+            <h1>{isSearching ? "Search Results" : `Directory: /${currentPath}`}</h1>
+            <input
+                type="text"
+                className="search-input"
+                placeholder="Search files..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <div className="explorer-list">
+                {!isSearching && currentPath !== "" && (
+                    <div className="list-item folder" onClick={navigateUp}>
+                        <span className="icon">📁</span> ..
+                    </div>
+                )}
 
-            {allVideos.length === 0 ? (
-                <p>No MP4 files found in the /videos directory.</p>
-            ) : (
-                <div className="list-container">
-                    {folderList.map(folder => {
-                        const nextPath = currentPath ? `${currentPath}/${folder}` : folder;
-                        return (
-                            <button
-                                key={nextPath}
-                                className="list-item folder"
-                                onClick={() => setCurrentPath(nextPath)}
-                            >
-                                📁 {folder}
-                            </button>
-                        );
-                    })}
-                    {files.map(video => (
-                        <a
-                            key={video.id}
-                            href={`/player/${video.id}`}
-                            className="list-item file"
-                        >
-                            🎬 {video.name}
-                        </a>
-                    ))}
-                    {folderList.length === 0 && files.length === 0 && (
-                        <p>This directory is empty.</p>
-                    )}
-                </div>
-            )}
+                {!isSearching && folderList.map((folder) => (
+                    <div key={folder} className="list-item folder" onClick={() => navigateIn(folder)}>
+                        <span className="icon">📁</span> {folder}
+                    </div>
+                ))}
+
+                {files.map((video) => (
+                    <a key={video.id} href={`/player/${video.id}`} className="list-item file">
+                        <span className="icon">🎬</span> {video.name}
+                    </a>
+                ))}
+
+                {folderList.length === 0 && files.length === 0 && (
+                    <div className="list-item empty">{isSearching ? "No matches found" : "Empty directory"}</div>
+                )}
+            </div>
         </div>
     );
 }
