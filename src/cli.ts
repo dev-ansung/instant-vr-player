@@ -54,3 +54,5 @@ if (!await mediaPath.stat().then(stat => stat.isDirectory()).catch(() => false))
 process.env.MEDIA_DIR = mediaDir;
 
 await import("./index.ts");
+
+console.log(`Server is running at https://${getLocalIp()}:3000`);
