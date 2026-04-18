@@ -1,3 +1,4 @@
+#!/usr/bin/env bun
 import { parseArgs } from "util"
 
 const { values, positionals } = parseArgs({
@@ -24,4 +25,4 @@ if (!await mediaPath.stat().then(stat => stat.isDirectory()).catch(() => false))
 }
 process.env.MEDIA_DIR = mediaDir;
 
-import "./src/index.ts";
+await import("./src/index.ts");
