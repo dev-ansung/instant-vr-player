@@ -25,4 +25,4 @@ if (!await mediaPath.stat().then(stat => stat.isDirectory()).catch(() => false))
 }
 process.env.MEDIA_DIR = mediaDir;
 
-await import("./src/index.ts");
+await import("./index.ts");

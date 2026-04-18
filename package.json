@@ -1,7 +1,6 @@
 {
-  "name": "bun-react-template",
+  "name": "instant-vr-player",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
   "bin": {
     "instant-vr-player": "./cli.ts"

@@ -19,7 +19,7 @@ function generateVideoId(filePath: string): string {
 
 const server = serve({
   routes: {
-    "/*": library,
+    "/": library,
     "/player/:id": mediaPage,
 
     "/api/videos": {
