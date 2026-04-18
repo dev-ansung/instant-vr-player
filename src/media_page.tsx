@@ -50,7 +50,7 @@ interface MediaItem {
 
     player.vr({
         projection: '180',
-        forceCardboard: false,
+        forceCardboard: true,
         enableVRHUD: true,
         enableVRGallery: true,
         mediaItems: mediaItems,
