@@ -1,10 +1,22 @@
 #!/usr/bin/env bun
 import { parseArgs } from "util"
 
+function getLocalIp() {
+    const os = require("os");
+    const interfaces = os.networkInterfaces();
+    for (const name of Object.keys(interfaces)) {
+        for (const iface of interfaces[name]) {
+            if (iface.family === "IPv4" && !iface.internal) {
+                return iface.address;
+            }
+        }
+    }
+    return "localhost";
+}
 
 async function generateSelfSignedCert() {
     const selfsigned = require("selfsigned");
-    const attrs = [{ name: "commonName", value: "192.168.1.116/" }];
+    const attrs = [{ name: "commonName", value: getLocalIp() }];
     const pems = await selfsigned.generate(attrs, { days: 365 });
     return {
         cert: pems.cert,

@@ -89,15 +89,3 @@ const server = serve({
     key: key
   }
 });
-
-
-// show local network IPs for easier testing on other devices
-const os = require("os");
-const interfaces = os.networkInterfaces();
-for (const name of Object.keys(interfaces)) {
-  for (const iface of interfaces[name]) {
-    if (iface.family === "IPv4" && !iface.internal) {
-      console.log(`Accessible on local network at https://${iface.address}:3000`);
-    }
-  }
-}
