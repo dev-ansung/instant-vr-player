@@ -6,9 +6,8 @@
     "instant-vr-player": "./src/cli.ts"
   },
   "scripts": {
-    "dev": "bun --hot src/index.ts",
-    "start": "NODE_ENV=production bun src/index.ts",
-    "build": "bun run build.ts"
+    "dev": "bun --hot src/cli.ts",
+    "start": "NODE_ENV=production bun src/cli.ts"
   },
   "dependencies": {
     "bun-plugin-tailwind": "^0.1.2",

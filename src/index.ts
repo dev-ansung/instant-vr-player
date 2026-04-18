@@ -50,7 +50,12 @@ const server = serve({
         if (range) {
           const parts = range.replace(/bytes=/, "").split("-");
           const start = parseInt(parts[0] ?? "0", 10);
-          const end = parts[1] ? parseInt(parts[1], 10) : file.size - 1;
+
+          // Cap the chunk size to 20MB
+          const maxChunk = 20 * 1024 * 1024;
+          let end = parts[1] ? parseInt(parts[1], 10) : file.size - 1;
+          end = Math.min(end, start + maxChunk - 1, file.size - 1);
+
           const chunksize = (end - start) + 1;
 
           return new Response(file.slice(start, end + 1), {
