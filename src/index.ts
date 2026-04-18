@@ -1,5 +1,4 @@
 import { serve } from "bun";
-import index from "./index.html";
 import mediaPage from "./media_page.html";
 import library from "./library.html";
 import { readdir } from "fs/promises";
@@ -8,8 +7,6 @@ const videoIdMap = new Map<string, string>();
 const targetDir = process.env.MEDIA_DIR || "./videos";
 
 function generateVideoId(filePath: string): string {
-  // simple incremental ID generator based on the number of videos
-  // skip if the file already has an ID
   for (const [id, path] of videoIdMap.entries()) {
     if (path === filePath) {
       return id;
@@ -24,10 +21,7 @@ const server = serve({
   routes: {
     "/*": library,
     "/player/:id": mediaPage,
-    "/api/": index,
 
-
-    // API to get video list
     "/api/videos": {
       async GET(req) {
         try {
