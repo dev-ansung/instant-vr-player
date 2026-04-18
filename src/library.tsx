@@ -16,7 +16,7 @@ function Library() {
         fetch("/api/videos")
             .then((res) => res.json())
             .then((data) => {
-                setVideos(data);
+                setVideos(data); // Data is already normalized by the server
                 setLoading(false);
             })
             .catch((err) => {
