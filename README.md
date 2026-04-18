@@ -1,21 +1,25 @@
-# bun-react-tailwind-template
+# Instant VR Player
 
-To install dependencies:
+A fast, lightweight local web server that instantly turns a folder of MP4 files into a VR-ready web gallery.
+
+## Compatibility
+Verified on MacOS with Chrome and Oculus Quest 2 meta browser. Should work on any VR device that supports WebXR.
+
+## Dependencies
+* [Bun](https://bun.com) - Runtime and bundler
+* React 19, Tailwind CSS 4 - Frontend
+* Video.js with `@blaineam/videojs-vr` - WebXR video player, player control and gallery UI
+
+## Quick Start
+
+You can run the player directly from GitHub using `bunx`:
 
 ```bash
-bun install
+bunx github:dev-ansung/instant-vr-player /path/to/your/videos
 ```
 
-To start a development server:
+## Contributing
+Contributions are welcome! Please fork the repository and submit a pull request with your changes.
 
-```bash
-bun dev
-```
-
-To run for production:
-
-```bash
-bun start
-```
-
-This project was created using `bun init` in bun v1.3.7. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+## License
+MIT License. See [LICENSE](LICENSE) for details.

@@ -5,6 +5,7 @@ import library from "./library.html";
 import { readdir } from "fs/promises";
 
 const videoIdMap = new Map<string, string>();
+const targetDir = process.env.MEDIA_DIR || "./videos";
 
 function generateVideoId(filePath: string): string {
   // simple incremental ID generator based on the number of videos
@@ -30,7 +31,7 @@ const server = serve({
     "/api/videos": {
       async GET(req) {
         try {
-          const files = await readdir("./videos", { recursive: true });
+          const files = await readdir(targetDir, { recursive: true });
           const videoFiles = files
             .filter(file => file.toLowerCase().endsWith(".mp4"))
             .map(file => ({
@@ -49,7 +50,7 @@ const server = serve({
         const path = videoIdMap.get(req.params.id);
         if (!path) return new Response("Video not found", { status: 404 });
 
-        const file = Bun.file(`./videos/${path}`);
+        const file = Bun.file(`${targetDir}/${path}`);
         const range = req.headers.get("range");
 
         if (range) {
@@ -82,10 +83,6 @@ const server = serve({
     console: true,
   },
   port: 3000,
-  tls: {
-    cert: Bun.file("./cert.pem"),
-    key: Bun.file("./key.pem"),
-  },
 });
 
 // show local network IPs for easier testing on other devices
@@ -94,7 +91,7 @@ const interfaces = os.networkInterfaces();
 for (const name of Object.keys(interfaces)) {
   for (const iface of interfaces[name]) {
     if (iface.family === "IPv4" && !iface.internal) {
-      console.log(`Accessible on local network at https://${iface.address}:3000`);
+      console.log(`Accessible on local network at http://${iface.address}:3000`);
     }
   }
 }
