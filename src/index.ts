@@ -5,6 +5,8 @@ import { readdir } from "fs/promises";
 
 const videoIdMap = new Map<string, string>();
 const targetDir = process.env.MEDIA_DIR || "./videos";
+const cert = process.env.SSL_CERT || "./cert.pem";
+const key = process.env.SSL_KEY || "./key.pem";
 
 function generateVideoId(filePath: string): string {
   for (const [id, path] of videoIdMap.entries()) {
@@ -82,7 +84,12 @@ const server = serve({
     console: true,
   },
   port: 3000,
+  tls: {
+    cert: cert,
+    key: key
+  }
 });
+
 
 // show local network IPs for easier testing on other devices
 const os = require("os");
@@ -90,7 +97,7 @@ const interfaces = os.networkInterfaces();
 for (const name of Object.keys(interfaces)) {
   for (const iface of interfaces[name]) {
     if (iface.family === "IPv4" && !iface.internal) {
-      console.log(`Accessible on local network at http://${iface.address}:3000`);
+      console.log(`Accessible on local network at https://${iface.address}:3000`);
     }
   }
 }

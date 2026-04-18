@@ -1,6 +1,22 @@
 #!/usr/bin/env bun
 import { parseArgs } from "util"
 
+
+async function generateSelfSignedCert() {
+    const selfsigned = require("selfsigned");
+    const attrs = [{ name: "commonName", value: "192.168.1.116/" }];
+    const pems = await selfsigned.generate(attrs, { days: 365 });
+    return {
+        cert: pems.cert,
+        key: pems.private
+    };
+}
+
+const { cert, key } = await generateSelfSignedCert();
+process.env.SSL_CERT = cert;
+process.env.SSL_KEY = key;
+
+
 const { values, positionals } = parseArgs({
     args: Bun.argv,
     strict: true,
