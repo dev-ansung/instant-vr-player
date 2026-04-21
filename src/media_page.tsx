@@ -1,3 +1,4 @@
+
 interface VideoApiItem {
     id: string;
     name: string;
@@ -11,52 +12,29 @@ interface MediaItem {
 
 (async function () {
     const videojs = (window as any).videojs;
-    const player = videojs('videojs-vr-player');
-    const titleElement = document.getElementById('video-title');
+    const video = document.getElementById('videojs-vr-player') as HTMLVideoElement;
 
     const pathParts = window.location.pathname.split('/');
     const videoId = pathParts[pathParts.length - 1];
 
-    let mediaItems: MediaItem[] = [];
-    try {
-        const response = await fetch('/api/videos');
-        const videos: VideoApiItem[] = await response.json();
-
-        // Find the current video name to update the UI
-        const currentVideo = videos.find(v => v.id === videoId);
-        if (currentVideo && titleElement) {
-            titleElement.textContent = currentVideo.name;
-            document.title = currentVideo.name;
-        }
-
-        mediaItems = videos.map(v => ({
-            src: `/video/${v.id}`,
-            type: 'video/mp4',
-            projection: '180',
-            title: v.name
-        }));
-    } catch (e) {
-        console.error("Failed to load video list", e);
-        if (titleElement) titleElement.textContent = "Error Loading Video";
-    }
-
-    player.src({
-        src: `/video/${videoId}`,
-        type: 'video/mp4'
-    });
-
-    player.mediainfo = player.mediainfo || {};
-    player.mediainfo.projection = '180';
-
-    player.vr({
-        projection: '180',
-        forceCardboard: true,
-        enableVRHUD: true,
-        enableVRGallery: true,
-        mediaItems: mediaItems,
-        onMediaSelect: (item: MediaItem) => {
-            player.src({ src: item.src, type: 'video/mp4' });
-            if (titleElement && item.title) titleElement.textContent = item.title;
+    video.src = `/video/${videoId}`;
+    // load videojs once the video element is ready
+    video.addEventListener('loadedmetadata', () => {
+        const player = videojs(video, {
+            controls: true,
+            fill: true,
+            playbackRates: [0.5, 1, 1.5, 2],
+            controlBar: {
+                skipButtons: { forward: 30, backward: 30 },
+            },
+        });
+        // Initialize the VR plugin if aspect ratio is 2:1
+        if (video.videoWidth / video.videoHeight === 2) {
+            player.vr({
+                projection: '180',
+            });
         }
     });
+
+
 })();
